@@ -55,10 +55,43 @@ class MoviesController extends Controller
             ->with('success', 'Movie added successfully!');
     }
 
-    public function show($id)
+    public function show(Movie $movie)
     {
-        $movie = Movie::findOrFail($id);
 
         return view('movies.show', compact('movie'));
     }
+
+    public function edit(Movie $movie)
+    {
+        $genres = Genre::all();
+        return view ('movies.edit', compact('movie', 'genres'));
+        
+    }
+
+    public function update(Request $request, Movie $movie)
+{
+    $validated = $request->validate([
+        'title'    => 'required|string|max:100',
+        'genre_id' => 'required|exists:genres,id',
+        'rating'   => 'required|numeric|min:0|max:10',
+        'year'     => 'required|integer|min:1900|max:2030',
+    ]);
+
+    $movie->update($validated);
+
+    return redirect()
+        ->route('movies.index')
+        ->with('success', 'Movie updated successfully!');
+}
+
+public function destroy(Movie $movie)
+{
+    $movie->delete();
+
+    return redirect()
+        ->route('movies.index')
+        ->with('success', 'Movie deleted successfully!');
+}
+
+
 }
